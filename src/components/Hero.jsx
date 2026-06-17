@@ -9,23 +9,22 @@ import { useSectionHref } from "../hooks/useSectionHref";
 import { useSiteMode } from "../hooks/useSiteMode";
 import { suspendScreenshotGuard } from "../utils/screenshotGuardControl";
 import { fadeIn, heroStagger, heroWord } from "../utils/animations";
-import { fireHeroConfettiBomb, firePartyModeBurst, fireSubtleConfetti } from "../utils/confetti";
-import { Balloons, FloatingParticles, MarketBackground } from "./BackgroundEffects";
+import { firePartyModeBurst, fireRocketBurstConfetti, fireSubtleConfetti } from "../utils/confetti";
+import { Balloons, FloatingParticles, HeroCandleBackground, MarketBackground, RocketBurstBackground } from "./BackgroundEffects";
 import { PrimaryButton } from "./UI";
 import SoundBars from "./SoundBars";
 
 export default function Hero() {
-  const { isBirthday } = useSiteMode();
+  const { isBirthday, partyMode, togglePartyMode } = useSiteMode();
   const { isLite } = usePerformanceMode(isBirthday);
   const wordVariant = isLite ? fadeIn : heroWord;
   const { openEnrollModal } = useEnrollModal();
-  const { play } = useMusic();
+  const { play, pause } = useMusic();
   const navigate = useNavigate();
   const performanceHref = useSectionHref("#performance");
   const curriculumHref = useSectionHref("#achievements");
   const trainerHref = useSectionHref("#trainer");
   const offerHref = useSectionHref("#offer");
-  const [partyMode, setPartyMode] = useState(false);
   const [showAlert, setShowAlert] = useState(false);
   const [confettiFired, setConfettiFired] = useState(false);
 
@@ -34,7 +33,7 @@ export default function Hero() {
     const alertTimer = window.setTimeout(() => setShowAlert(true), 2400);
     if (!confettiFired && !isLite) {
       setConfettiFired(true);
-      const confettiTimer = window.setTimeout(() => fireHeroConfettiBomb(), 900);
+      const confettiTimer = window.setTimeout(() => fireRocketBurstConfetti(), 700);
       return () => {
         window.clearTimeout(alertTimer);
         window.clearTimeout(confettiTimer);
@@ -59,11 +58,13 @@ export default function Hero() {
 
   const handlePartyMode = async () => {
     if (partyMode) {
-      setPartyMode(false);
+      togglePartyMode();
+      pause();
       return;
     }
-    setPartyMode(true);
+    togglePartyMode();
     firePartyModeBurst();
+    fireRocketBurstConfetti();
     await play();
   };
 
@@ -73,11 +74,15 @@ export default function Hero() {
         <MarketBackground lite={isLite} />
         <FloatingParticles lite={isLite} />
         {isBirthday && (
-          <Balloons
-            lite={isLite}
-            opacity={partyMode ? 0.6 : 0.38}
-            motionFloat={!isLite && partyMode}
-          />
+          <>
+            <HeroCandleBackground lite={isLite} />
+            <RocketBurstBackground lite={isLite} intense={partyMode} />
+            <Balloons
+              lite={isLite}
+              opacity={partyMode ? 0.6 : 0.38}
+              motionFloat={!isLite && partyMode}
+            />
+          </>
         )}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_40%,rgba(92,255,141,0.06),transparent_55%)]" />
         {isBirthday && (
@@ -191,7 +196,7 @@ export default function Hero() {
               >
                 <span className="flex items-center justify-center gap-2">
                   {partyMode && <SoundBars className="bg-gold" />}
-                  {partyMode ? "Party Mode On 🎉" : "Party Mode 🎉"}
+                  {partyMode ? "Turn Party Mode Off 🎉" : "Turn Party Mode On 🎉"}
                 </span>
               </motion.button>
             )}

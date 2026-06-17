@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { FaKey, FaTimes } from "react-icons/fa";
+import { useMusic } from "../hooks/useMusic";
 import { modalBackdrop } from "../utils/animations";
 
 const ERROR_MESSAGES = {
@@ -28,6 +29,7 @@ export default function KeyUnlockModal({
   submitting = false,
   initialError = "",
 }) {
+  const { startBirthdayPlayback } = useMusic();
   const [value, setValue] = useState("");
   const [error, setError] = useState("");
 
@@ -53,6 +55,7 @@ export default function KeyUnlockModal({
       return;
     }
 
+    await startBirthdayPlayback();
     setValue("");
     setError("");
   };

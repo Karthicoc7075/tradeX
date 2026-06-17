@@ -23,17 +23,58 @@ function milestoneAnchor(index, total) {
   return "middle";
 }
 
+function useNarrowScreen(maxWidth = 639) {
+  const [narrow, setNarrow] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia(`(max-width: ${maxWidth}px)`).matches : false,
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia(`(max-width: ${maxWidth}px)`);
+    const onChange = () => setNarrow(mq.matches);
+    onChange();
+    mq.addEventListener("change", onChange);
+    return () => mq.removeEventListener("change", onChange);
+  }, [maxWidth]);
+
+  return narrow;
+}
+
+function MobileMilestoneLegend({ milestones, isBirthday }) {
+  return (
+    <ul className="mt-3 grid grid-cols-2 gap-2 border-t border-slate-800/70 pt-3 sm:hidden">
+      {milestones.map((point, index) => {
+        const isLast = index === milestones.length - 1;
+        return (
+          <li
+            key={point.label}
+            className={`rounded-lg border border-slate-800/75 bg-slate-900/35 px-2.5 py-2 ${
+              isLast && milestones.length % 2 !== 0 ? "col-span-2" : ""
+            }`}
+          >
+            <p className={`font-mono text-[10px] font-bold ${isLast && isBirthday ? "text-gold" : "text-lime"}`}>
+              {point.label}
+            </p>
+            <p className="mt-0.5 text-[9px] leading-snug text-slate-500">{point.sub}</p>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
 export default function GrowthChart() {
   const { data, isBirthday } = useSiteMode();
   const { isLite } = usePerformanceMode(isBirthday);
   const { chartMilestones, copy } = data;
   const ref = useRef(null);
+  const isNarrow = useNarrowScreen();
   const visible = useInView(ref, { once: true, amount: 0.4 });
   const [celebrated, setCelebrated] = useState(false);
   const { line, fill } = useMemo(() => buildGrowthChartPaths(chartMilestones), [chartMilestones]);
 
   const startLabel = isBirthday ? "Age 1" : "2019";
   const endLabel = "2026";
+  const sectionBorder = isBirthday ? "border-slate-800/60" : "border-white/5";
 
   useEffect(() => {
     if (isBirthday && visible && !celebrated && !isLite) {
@@ -44,37 +85,56 @@ export default function GrowthChart() {
   }, [visible, celebrated, isBirthday, isLite]);
 
   return (
-    <section id="analytics" ref={ref} className="relative border-y border-white/5 bg-[#07101e]/55 py-24 md:py-32">
-      <div className="mx-auto max-w-7xl px-5 md:px-8">
-        <SectionTitle eyebrow={copy.growth.eyebrow} title={copy.growth.title} copy={copy.growth.subtitle} />
+    <section
+      id="analytics"
+      ref={ref}
+      className={`relative border-y ${sectionBorder} bg-[#07101e]/55 py-16 md:py-32`}
+    >
+      <div className="mx-auto max-w-7xl px-4 sm:px-5 md:px-8">
+        <SectionTitle
+          eyebrow={copy.growth.eyebrow}
+          title={copy.growth.title}
+          copy={copy.growth.subtitle}
+          theme={isBirthday ? "birthday" : "default"}
+        />
+
         <motion.div
           initial={{ opacity: 0, scale: 0.98 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
           {...cardMotion}
-          className="glass card-hover card-hover-gold rounded-3xl border-gold/10 p-4 md:p-8"
+          className="glass card-hover card-hover-gold overflow-hidden rounded-2xl border-gold/10 p-3 sm:rounded-3xl sm:p-4 md:p-8"
         >
-          <div className="mb-6 flex flex-col justify-between gap-4 border-b border-white/5 pb-5 sm:flex-row sm:items-center">
-            <div>
-              <p className="text-xs text-slate-500">TGI / LIFETIME</p>
-              <p className="mt-1 font-display text-2xl font-bold text-white">
+          <div
+            className={`mb-4 flex flex-col gap-3 border-b pb-4 sm:mb-6 sm:flex-row sm:items-center sm:justify-between sm:gap-4 sm:pb-5 ${
+              isBirthday ? "border-slate-800/70" : "border-white/5"
+            }`}
+          >
+            <div className="min-w-0">
+              <p className="text-[10px] text-slate-500 sm:text-xs">TGI / LIFETIME</p>
+              <p className="mt-1 font-display text-base font-bold leading-tight text-white sm:text-2xl">
                 {isBirthday ? "All-Time Happiness" : "Cumulative Performance"}
               </p>
             </div>
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <p className="font-display text-2xl font-bold text-lime">{copy.growth.ytd}</p>
-                <p className="text-[10px] uppercase tracking-widest text-slate-500">{copy.growth.ytdLabel}</p>
+
+            <div className="flex flex-wrap items-center gap-2 sm:gap-4">
+              <div className="min-w-0">
+                <p className="font-display text-xl font-bold text-lime sm:text-2xl">{copy.growth.ytd}</p>
+                <p className="text-[9px] uppercase tracking-wider text-slate-500 sm:text-[10px] sm:tracking-widest">
+                  {copy.growth.ytdLabel}
+                </p>
               </div>
-              <span className="rounded-lg bg-lime/10 px-3 py-2 text-xs font-bold text-lime">STRONG BUY</span>
+              <span className="shrink-0 rounded-lg bg-lime/10 px-2.5 py-1.5 text-[10px] font-bold text-lime sm:px-3 sm:py-2 sm:text-xs">
+                {isNarrow ? "BUY" : "STRONG BUY"}
+              </span>
             </div>
           </div>
 
-          <div className="overflow-visible px-2 pb-2 md:px-3">
+          <div className="overflow-hidden px-0 pb-1 sm:overflow-visible sm:px-2 sm:pb-2 md:px-3">
             <div className="w-full min-w-0">
               <svg
                 viewBox={`${CHART_VIEWBOX.x} ${CHART_VIEWBOX.y} ${CHART_VIEWBOX.width} ${CHART_VIEWBOX.height}`}
-                className="block h-[240px] w-full md:h-[300px] lg:h-[340px]"
+                className="block h-[190px] w-full sm:h-[240px] md:h-[300px] lg:h-[340px]"
                 preserveAspectRatio="xMidYMid meet"
                 overflow="visible"
                 aria-hidden="true"
@@ -97,7 +157,15 @@ export default function GrowthChart() {
                   <line key={y} x1="0" y1={y} x2={CHART_PLOT_WIDTH} y2={y} stroke="#b6d1e5" strokeOpacity="0.08" />
                 ))}
 
-                <line x1="0" y1="200" x2={CHART_PLOT_WIDTH} y2="200" stroke={CHART_GREEN} strokeOpacity="0.2" strokeWidth="1" />
+                <line
+                  x1="0"
+                  y1="200"
+                  x2={CHART_PLOT_WIDTH}
+                  y2="200"
+                  stroke={CHART_GREEN}
+                  strokeOpacity="0.2"
+                  strokeWidth="1"
+                />
 
                 <motion.path
                   d={fill}
@@ -110,10 +178,10 @@ export default function GrowthChart() {
                   d={line}
                   fill="none"
                   stroke={CHART_GREEN}
-                  strokeWidth="4"
+                  strokeWidth={isNarrow ? 3 : 4}
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  filter={isLite ? undefined : "url(#glow)"}
+                  filter={isLite || isNarrow ? undefined : "url(#glow)"}
                   initial={isLite ? false : { pathLength: 0 }}
                   animate={visible ? (isLite ? { opacity: 1 } : { pathLength: 1 }) : {}}
                   transition={{ duration: isLite ? 0.4 : 2.8, ease: "easeOut" }}
@@ -143,33 +211,43 @@ export default function GrowthChart() {
                       <circle
                         cx={point.x}
                         cy={point.y}
-                        r={isLast ? 9 : 7}
+                        r={isLast ? (isNarrow ? 7 : 9) : isNarrow ? 5.5 : 7}
                         fill="#07101e"
                         stroke={isLast ? "#ffdf6b" : CHART_GREEN}
-                        strokeWidth={isLast ? 3.5 : 3}
+                        strokeWidth={isLast ? (isNarrow ? 2.5 : 3.5) : isNarrow ? 2 : 3}
                       />
                       {isLast && (
-                        <circle cx={point.x} cy={point.y} r={14} fill="#ffdf6b" fillOpacity={0.12} />
+                        <circle
+                          cx={point.x}
+                          cy={point.y}
+                          r={isNarrow ? 10 : 14}
+                          fill="#ffdf6b"
+                          fillOpacity="0.12"
+                        />
                       )}
-                      <text
-                        x={point.x}
-                        y="218"
-                        textAnchor={anchor}
-                        fill={isLast ? "#ffdf6b" : isFirst ? "#5cff8d" : "#94a3b8"}
-                        fontSize={isLast ? 11 : 10}
-                        fontWeight="700"
-                      >
-                        {point.label}
-                      </text>
-                      <text
-                        x={point.x}
-                        y="232"
-                        textAnchor={anchor}
-                        fill={isLast ? "#cbd5e1" : "#64748b"}
-                        fontSize="8.5"
-                      >
-                        {point.sub}
-                      </text>
+                      {!isNarrow && (
+                        <>
+                          <text
+                            x={point.x}
+                            y="218"
+                            textAnchor={anchor}
+                            fill={isLast ? "#ffdf6b" : isFirst ? "#5cff8d" : "#94a3b8"}
+                            fontSize={isLast ? 11 : 10}
+                            fontWeight="700"
+                          >
+                            {point.label}
+                          </text>
+                          <text
+                            x={point.x}
+                            y="232"
+                            textAnchor={anchor}
+                            fill={isLast ? "#cbd5e1" : "#64748b"}
+                            fontSize="8.5"
+                          >
+                            {point.sub}
+                          </text>
+                        </>
+                      )}
                     </motion.g>
                   );
                 })}
@@ -177,7 +255,13 @@ export default function GrowthChart() {
             </div>
           </div>
 
-          <div className="mt-2 flex justify-between border-t border-white/5 pt-4 font-mono text-[10px] uppercase tracking-wider text-slate-600">
+          {isNarrow && <MobileMilestoneLegend milestones={chartMilestones} isBirthday={isBirthday} />}
+
+          <div
+            className={`mt-2 flex justify-between border-t pt-3 font-mono text-[9px] uppercase tracking-wider text-slate-600 sm:pt-4 sm:text-[10px] ${
+              isBirthday ? "border-slate-800/70" : "border-white/5"
+            }`}
+          >
             <span className="font-bold text-lime">{startLabel}</span>
             <span className="font-bold text-lime">{endLabel}</span>
           </div>
@@ -188,7 +272,11 @@ export default function GrowthChart() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
-          className={`mx-auto mt-8 max-w-2xl text-center leading-relaxed ${isBirthday ? "font-display text-lg font-semibold text-gold md:text-xl" : "text-sm text-slate-500 md:text-base"}`}
+          className={`mx-auto mt-6 max-w-2xl px-1 text-center leading-relaxed sm:mt-8 ${
+            isBirthday
+              ? "font-display text-sm font-semibold text-gold sm:text-lg md:text-xl"
+              : "text-sm text-slate-500 md:text-base"
+          }`}
         >
           {copy.growth.footer}
         </motion.p>

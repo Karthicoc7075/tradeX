@@ -81,8 +81,8 @@ export const achievements = [
 ];
 
 export const advice = [
-  "Buy cake. Sell stress. Simple da machi.",
   "Invest in friendship da. Returns guaranteed.",
+  "Buy cake. Sell stress. Simple da machi.",
   "Today best trade: Eat more, think less.",
   "Never short your birthday. Long term la nalla irukkum.",
   "Green candles paatha happy aagu. Red candle full ignore pannu.",
@@ -103,8 +103,8 @@ export const advice = [
 ];
 
 export const adviceMeta = [
-  { strategy: "Cake Accumulation", confidence: 98, risk: "Low", timeframe: "Immediate", signal: "STRONG BUY" },
   { strategy: "Friendship DCA", confidence: 99, risk: "Minimal", timeframe: "Lifetime", signal: "HOLD FOREVER" },
+  { strategy: "Cake Accumulation", confidence: 98, risk: "Low", timeframe: "Immediate", signal: "STRONG BUY" },
   { strategy: "Lifestyle Alpha", confidence: 94, risk: "Low", timeframe: "Today", signal: "BUY MORE" },
   { strategy: "Birthday Long", confidence: 100, risk: "Zero", timeframe: "Annual", signal: "NEVER SHORT" },
   { strategy: "Sentiment Filter", confidence: 91, risk: "Low", timeframe: "Daily", signal: "BULLISH" },
@@ -308,6 +308,8 @@ export const copy = {
     fundedBadge: "Cake Capital Funded",
     liveBadge: "Birthday Live",
     chartLabel: "M5 · Party session",
+    equityFlowLabel: "Live equity flow",
+    equityFlowNote: "Funded curve running live — green candle energy only da 📈",
     capitalNote: "Funded by Birthday Cake Capital 🎂",
     roast: "Bro you already better than Tharun at trading 😂",
     orderWin: "Green candle secured — cake bonus unlocked 🎂",

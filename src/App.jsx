@@ -20,7 +20,7 @@ import Performance from "./components/Performance";
 import PortfolioHoldings from "./components/PortfolioHoldings";
 import QuickStats from "./components/QuickStats";
 import RoastSection from "./components/RoastSection";
-import ScrollMusicStarter from "./components/ScrollMusicStarter";
+import BirthdaySessionStarter from "./components/BirthdaySessionStarter";
 import ScrollProgress from "./components/ScrollProgress";
 
 import ScreenshotGuard from "./components/ScreenshotGuard";
@@ -67,12 +67,12 @@ function SiteContent() {
       initial={isLite ? false : { opacity: 0, y: 8 }}
       animate={isLite ? undefined : { opacity: 1, y: 0 }}
       transition={{ duration: 0.35, ease: "easeOut" }}
-      className="noise relative min-h-screen overflow-x-hidden bg-ink text-slate-100"
+      className={`noise relative min-h-screen overflow-x-hidden bg-ink text-slate-100${isBirthday ? " birthday-mode" : ""}`}
     >
       <HashScrollHandler />
       <BirthdayEntryScroll />
       <ScrollProgress progress={progress} />
-      {isBirthday && <ScrollMusicStarter />}
+      {isBirthday && <BirthdaySessionStarter />}
       <SiteHeader />
       {isBirthday && <TradingToasts />}
       {isBirthday && <BirthdayModal open={bonusOpen} onClose={() => setBonusOpen(false)} grand />}

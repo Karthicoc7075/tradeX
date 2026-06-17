@@ -11,6 +11,8 @@ export const MUSIC_TRACKS = [
 
 export const MUSIC_STORAGE_KEY = "tradex-music-prefs";
 
+export const BIRTHDAY_SESSION_VOLUME = 0.8;
+
 export const DEFAULT_MUSIC_PREFS = {
   volume: 0.35,
   trackId: "birthday",

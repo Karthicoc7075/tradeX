@@ -1,5 +1,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { DEFAULT_MUSIC_PREFS, MUSIC_STORAGE_KEY, MUSIC_TRACKS } from "../data/musicTracks";
+import {
+  BIRTHDAY_SESSION_VOLUME,
+  DEFAULT_MUSIC_PREFS,
+  MUSIC_STORAGE_KEY,
+  MUSIC_TRACKS,
+} from "../data/musicTracks";
 import { MusicContext } from "./MusicContext";
 
 function loadPrefs() {
@@ -18,6 +23,7 @@ export default function MusicProvider({ children }) {
   const userPausedRef = useRef(false);
   const prevTrackIdRef = useRef(null);
   const scrollMusicQueuedRef = useRef(false);
+  const birthdayPlaybackStartedRef = useRef(false);
 
   const [prefs, setPrefs] = useState(() => ({ ...loadPrefs(), isPlaying: false }));
 
@@ -103,6 +109,20 @@ export default function MusicProvider({ children }) {
     [persist],
   );
 
+  const startBirthdayPlayback = useCallback(async () => {
+    userPausedRef.current = false;
+    scrollMusicQueuedRef.current = false;
+    persist({ volume: BIRTHDAY_SESSION_VOLUME });
+
+    const audio = audioRef.current;
+    if (audio && birthdayPlaybackStartedRef.current && !audio.paused) {
+      return true;
+    }
+
+    birthdayPlaybackStartedRef.current = true;
+    return play();
+  }, [persist, play]);
+
   useEffect(() => {
     const audio = audioRef.current;
     if (!audio) return;
@@ -163,9 +183,22 @@ export default function MusicProvider({ children }) {
       autoPlayOnScroll,
       setVolume,
       setTrackId,
+      startBirthdayPlayback,
       pausedByTabRef,
     }),
-    [autoPlayOnScroll, pause, play, prefs.isPlaying, prefs.trackId, prefs.volume, setTrackId, setVolume, togglePlay, track],
+    [
+      autoPlayOnScroll,
+      pause,
+      play,
+      prefs.isPlaying,
+      prefs.trackId,
+      prefs.volume,
+      setTrackId,
+      setVolume,
+      startBirthdayPlayback,
+      togglePlay,
+      track,
+    ],
   );
 
   return (

@@ -10,7 +10,7 @@ import {
   subscribeUnlockStatus,
 } from "../services/unlockService";
 import { SITE_MODES } from "../utils/siteMode";
-import { fireMassiveConfetti } from "../utils/confetti";
+import { fireMassiveConfetti, firePartyModeBurst, fireRocketBurstConfetti } from "../utils/confetti";
 import { suspendScreenshotGuard } from "../utils/screenshotGuardControl";
 import { SiteModeContext } from "./SiteModeContext";
 import { withMergedAccessCodes } from "../services/unlockService";
@@ -37,6 +37,7 @@ export default function SiteModeProvider({ children }) {
   const [keyModalOpen, setKeyModalOpen] = useState(false);
   const [accessKeyError, setAccessKeyError] = useState("");
   const [unlocking, setUnlocking] = useState(false);
+  const [partyMode, setPartyMode] = useState(false);
   const birthdaySessionRef = useRef(false);
 
   useEffect(() => {
@@ -55,6 +56,16 @@ export default function SiteModeProvider({ children }) {
   useEffect(() => {
     birthdaySessionRef.current = birthdaySessionActive;
   }, [birthdaySessionActive]);
+
+  useEffect(() => {
+    if (!birthdaySessionActive) {
+      setPartyMode(false);
+    }
+  }, [birthdaySessionActive]);
+
+  const togglePartyMode = useCallback(() => {
+    setPartyMode((prev) => !prev);
+  }, []);
 
   useEffect(() => {
     if (location.pathname === BIRTHDAY_PATH && !birthdaySessionRef.current) {
@@ -93,6 +104,7 @@ export default function SiteModeProvider({ children }) {
       setAccessKeyError("");
       birthdaySessionRef.current = true;
       setBirthdaySessionActive(true);
+      setPartyMode(true);
       setUnlockState((prev) => ({
         ...prev,
         ...patch,
@@ -101,6 +113,8 @@ export default function SiteModeProvider({ children }) {
       navigate({ pathname: BIRTHDAY_PATH, hash: "" });
       window.scrollTo({ top: 0, behavior: "auto" });
       fireMassiveConfetti();
+      firePartyModeBurst();
+      window.setTimeout(() => fireRocketBurstConfetti(), 500);
     },
     [navigate],
   );
@@ -199,6 +213,8 @@ export default function SiteModeProvider({ children }) {
       unlockState,
       mainAccessStatus,
       birthdaySessionActive,
+      partyMode,
+      togglePartyMode,
       canOpenAccessModal,
       canNavbarOpenAccessModal,
       openFooterAccessKeyModal,
@@ -218,6 +234,8 @@ export default function SiteModeProvider({ children }) {
       unlockState,
       mainAccessStatus,
       birthdaySessionActive,
+      partyMode,
+      togglePartyMode,
       canOpenAccessModal,
       canNavbarOpenAccessModal,
       openFooterAccessKeyModal,

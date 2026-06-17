@@ -4,10 +4,10 @@ import { FaPhone, FaWhatsapp } from "react-icons/fa";
 import { Link } from "react-router-dom";
 import { useSectionHref } from "../hooks/useSectionHref";
 import { useSiteMode } from "../hooks/useSiteMode";
-import { fireMassiveConfetti, firePartyModeBurst } from "../utils/confetti";
+import { fireMassiveConfetti, firePartyModeBurst, fireRocketBurstConfetti } from "../utils/confetti";
 import { suspendScreenshotGuard } from "../utils/screenshotGuardControl";
 import { buildContactWhatsAppUrl, CONTACT_PHONE_DISPLAY, getContactPhoneHref } from "../utils/whatsapp";
-import { Balloons, Fireworks } from "./BackgroundEffects";
+import { Balloons, FooterCelebrationBackground } from "./BackgroundEffects";
 import TradexLogo from "./TradexLogo";
 import { PrimaryButton } from "./UI";
 
@@ -73,15 +73,16 @@ export default function Footer() {
     setBurst(true);
     firePartyModeBurst();
     fireMassiveConfetti();
+    fireRocketBurstConfetti();
   };
 
   if (isBirthday) {
     return (
       <footer ref={ref} id="celebration" className="relative overflow-hidden bg-[#030810] py-20 md:py-28">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_50%_30%,rgba(92,255,141,0.12),transparent_55%)]" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/25 to-transparent" />
-        <Balloons opacity={0.45} motionFloat />
-        {burst && <Fireworks count={8} />}
+        <div className="footer-edge-glow pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/40 to-transparent" />
+        <FooterCelebrationBackground intense={burst} />
+        <Balloons dense opacity={burst ? 0.55 : 0.45} motionFloat />
 
         <div className="relative z-10 mx-auto max-w-5xl px-5 text-center md:px-8">
           <motion.h2
@@ -90,8 +91,16 @@ export default function Footer() {
             transition={{ duration: 0.85, ease: [0.25, 0.1, 0.25, 1] }}
             className="hero-headline-glow font-display text-5xl font-bold leading-[0.9] tracking-[-0.04em] text-white sm:text-6xl md:text-7xl lg:text-8xl"
           >
-            HAPPY BIRTHDAY
-            <span className="mt-2 block lime-gradient">THARUN</span>
+            <motion.span
+              animate={inView ? { y: [0, -4, 0] } : {}}
+              transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
+              className="inline-block"
+            >
+              HAPPY BIRTHDAY
+            </motion.span>
+            <span className="footer-title-shimmer mt-2 block bg-gradient-to-r from-lime via-gold to-lime bg-clip-text text-transparent">
+              THARUN
+            </span>
           </motion.h2>
 
           <motion.p
@@ -103,10 +112,17 @@ export default function Footer() {
             This whole trading empire was built just for you. Stay happy, eat cake, and remember someone is always bullish on you.
           </motion.p>
 
-          <motion.div initial={{ opacity: 0, y: 10 }} animate={inView ? { opacity: 1, y: 0 } : {}} transition={{ delay: 0.5 }} className="mt-8">
-            <PrimaryButton onClick={launchCelebration} arrow={false} className="px-8 py-3.5">
-              🎉 More Confetti
-            </PrimaryButton>
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={inView ? { opacity: 1, y: 0 } : {}}
+            transition={{ delay: 0.5 }}
+            className="mt-8"
+          >
+            <motion.div animate={burst ? { scale: [1, 1.04, 1] } : {}} transition={{ duration: 0.45 }}>
+              <PrimaryButton onClick={launchCelebration} arrow={false} className="btn-bonus-glow px-8 py-3.5">
+                🎉 More Confetti
+              </PrimaryButton>
+            </motion.div>
           </motion.div>
 
           <motion.p initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ delay: 0.65 }} className="mt-10 text-xs text-slate-600">

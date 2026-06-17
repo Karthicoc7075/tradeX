@@ -1,9 +1,9 @@
 import { AnimatePresence, motion, useInView } from "framer-motion";
 import { useRef, useState } from "react";
 import { FaArrowDown, FaArrowUp } from "react-icons/fa6";
-import { usePerformanceMode } from "../hooks/usePerformanceMode";
+import { useFundedAccountSimulator } from "../hooks/useFundedAccountSimulator";
 import { useSiteMode } from "../hooks/useSiteMode";
-import { useForexSimulator } from "../hooks/useForexSimulator";
+import LiveEquityFlowChart from "./LiveEquityFlowChart";
 import { VIEWPORT } from "../utils/animations";
 import { fireSubtleConfetti } from "../utils/confetti";
 import { SectionTitle } from "./UI";
@@ -18,7 +18,6 @@ function ForexChart({ candles, price }) {
   const w = 560;
   const h = 220;
   const candleW = w / visible.length;
-
   const y = (val) => h - ((val - min) / range) * (h - 16) - 8;
 
   return (
@@ -63,18 +62,29 @@ function ForexChart({ candles, price }) {
 }
 
 export default function TradingDesk() {
-  const { isBirthday, data } = useSiteMode();
+  const { data } = useSiteMode();
   const deskCopy = data.copy.tradingDesk;
-  const { isLite } = usePerformanceMode(isBirthday);
   const sectionRef = useRef(null);
   const inView = useInView(sectionRef, { margin: "120px 0px", amount: 0.1 });
-  const { pair, price, bid, ask, spread, direction, candles } = useForexSimulator(inView && !isLite);
+  const {
+    pair,
+    price,
+    bid,
+    ask,
+    spread,
+    direction,
+    candles,
+    balance,
+    equity,
+    dailyPnL,
+    equityFlow,
+    tickCount,
+    applyTrade,
+  } = useFundedAccountSimulator(inView);
+
   const [lotSize, setLotSize] = useState("0.10");
   const [stopLoss, setStopLoss] = useState("1.0820");
   const [takeProfit, setTakeProfit] = useState("1.0880");
-  const [balance, setBalance] = useState(4872.45);
-  const [equity, setEquity] = useState(4965.2);
-  const [dailyPnL, setDailyPnL] = useState(87.3);
   const [tradeCount, setTradeCount] = useState(0);
   const [orderPopup, setOrderPopup] = useState(null);
   const [roastMsg, setRoastMsg] = useState(false);
@@ -82,13 +92,8 @@ export default function TradingDesk() {
   const executeTrade = (side) => {
     const lots = parseFloat(lotSize) || 0.1;
     const profit = (Math.random() > 0.38 ? 1 : -1) * (Math.random() * 95 + 8) * lots * 10;
-    const nextBalance = balance + profit;
-    const nextEquity = equity + profit;
-    const nextDaily = dailyPnL + profit;
 
-    setBalance(nextBalance);
-    setEquity(nextEquity);
-    setDailyPnL(nextDaily);
+    applyTrade(profit);
 
     const nextCount = tradeCount + 1;
     setTradeCount(nextCount);
@@ -107,11 +112,12 @@ export default function TradingDesk() {
   };
 
   const dailyUp = dailyPnL >= 0;
+  const equityUp = equityFlow.length >= 2 && equityFlow[equityFlow.length - 1].value >= equityFlow[0].value;
 
   return (
-    <section id="desk" ref={sectionRef} className="relative border-y border-white/5 bg-[#050d18] py-20 md:py-28">
+    <section id="desk" ref={sectionRef} className="relative border-y border-slate-800/60 bg-[#050d18] py-16 md:py-28">
       <div className="pointer-events-none absolute left-0 top-1/3 h-72 w-72 rounded-full bg-cyan/5 blur-[120px]" />
-      <div className="relative mx-auto max-w-7xl px-5 md:px-8">
+      <div className="relative mx-auto max-w-7xl px-4 sm:px-5 md:px-8">
         <SectionTitle
           theme="birthday"
           eyebrow={deskCopy.eyebrow}
@@ -127,21 +133,31 @@ export default function TradingDesk() {
           initial={{ opacity: 0, y: 24 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={VIEWPORT}
-          className="glass overflow-hidden rounded-3xl border-white/10"
+          className="glass overflow-hidden rounded-2xl border-slate-800/75 sm:rounded-3xl"
         >
           <div className="h-px bg-gradient-to-r from-transparent via-cyan/40 to-transparent" />
 
-          <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/8 bg-black/30 px-4 py-3 md:px-5">
-            <div className="flex flex-wrap items-center gap-3 md:gap-5">
-              <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-mono text-[10px] text-slate-400">
+          <div className="flex flex-col gap-3 border-b border-slate-800/70 bg-black/30 px-3 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between sm:px-5">
+            <div className="flex flex-wrap items-center gap-2 sm:gap-3 md:gap-5">
+              <span className="rounded-full border border-slate-800/80 bg-slate-900/40 px-2.5 py-1 font-mono text-[10px] text-slate-400">
                 🎂 {deskCopy.fundedBadge}
+              </span>
+              <span className="flex items-center gap-2 rounded-full border border-lime/20 bg-lime/10 px-2.5 py-1">
+                <motion.span
+                  className="dashboard-live-dot h-1.5 w-1.5 rounded-full bg-lime"
+                  animate={{ opacity: inView ? [1, 0.35, 1] : 1 }}
+                  transition={{ duration: 1.2, repeat: Infinity }}
+                />
+                <span className="font-mono text-[9px] font-bold uppercase tracking-wider text-lime sm:text-[10px]">
+                  {deskCopy.liveBadge}
+                </span>
               </span>
               <span className="font-display text-sm font-bold text-white md:text-base">{pair}</span>
               <motion.span
                 key={price}
                 initial={{ opacity: 0.6, y: -4 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`font-mono text-lg font-bold md:text-xl ${direction === "up" ? "text-lime" : "text-rose-400"}`}
+                className={`font-mono text-base font-bold sm:text-lg md:text-xl ${direction === "up" ? "text-lime" : "text-rose-400"}`}
               >
                 {price.toFixed(5)}
                 {direction === "up" ? (
@@ -151,7 +167,7 @@ export default function TradingDesk() {
                 )}
               </motion.span>
             </div>
-            <div className="flex flex-wrap gap-4 font-mono text-[11px] md:text-xs">
+            <div className="flex flex-wrap gap-3 font-mono text-[10px] sm:gap-4 sm:text-[11px] md:text-xs">
               <span className="text-slate-500">
                 Bid <span className="font-bold text-rose-400">{bid.toFixed(5)}</span>
               </span>
@@ -165,8 +181,8 @@ export default function TradingDesk() {
           </div>
 
           <div className="grid lg:grid-cols-[minmax(0,1fr)_300px] xl:grid-cols-[minmax(0,1fr)_340px]">
-            <div className="border-b border-white/8 p-3 md:p-4 lg:border-b-0 lg:border-r">
-              <div className="mb-2 flex items-center justify-between">
+            <div className="border-b border-slate-800/70 p-3 md:p-4 lg:border-b-0 lg:border-r">
+              <div className="mb-2 flex items-center justify-between gap-2">
                 <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-500">
                   {deskCopy.chartLabel}
                 </span>
@@ -174,19 +190,40 @@ export default function TradingDesk() {
                   {deskCopy.liveBadge}
                 </span>
               </div>
-              <div className="h-[200px] overflow-hidden rounded-xl border border-white/8 bg-[#030a14]/80 md:h-[240px] lg:h-[280px]">
+              <div className="h-[180px] overflow-hidden rounded-xl border border-slate-800/75 bg-[#030a14]/80 sm:h-[200px] md:h-[240px] lg:h-[260px]">
                 <ForexChart candles={candles} price={price} />
               </div>
+
+              <div className="mt-3 rounded-xl border border-slate-800/75 bg-[#030a14]/70 p-2.5 sm:p-3">
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    {deskCopy.equityFlowLabel ?? "Live equity flow"}
+                  </span>
+                  <div className="flex items-center gap-2 font-mono text-[9px] text-slate-600">
+                    <span className={equityUp ? "text-lime" : "text-rose-400"}>
+                      {equityUp ? "▲ Flow bullish" : "▼ Flow easing"}
+                    </span>
+                    <span>#{tickCount}</span>
+                  </div>
+                </div>
+                <div className="h-[100px] sm:h-[120px] md:h-[130px]">
+                  <LiveEquityFlowChart points={equityFlow} direction={direction} />
+                </div>
+                <p className="mt-2 text-center text-[10px] italic text-slate-500">
+                  {deskCopy.equityFlowNote ?? "Funded account curve updating live"}
+                </p>
+              </div>
+
               <p className="mt-2 text-center text-[10px] italic text-slate-500">{deskCopy.capitalNote}</p>
             </div>
 
-            <div className="flex flex-col gap-4 p-4 md:p-5">
-              <div className="rounded-2xl border border-white/8 bg-black/25 p-4">
-                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Account</p>
+            <div className="flex flex-col gap-4 p-3 sm:p-4 md:p-5">
+              <div className="rounded-2xl border border-slate-800/75 bg-black/25 p-4">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Funded Account</p>
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   {[
                     { label: "Balance", value: `$${balance.toFixed(2)}`, tone: "text-white" },
-                    { label: "Equity", value: `$${equity.toFixed(2)}`, tone: "text-white" },
+                    { label: "Equity", value: `$${equity.toFixed(2)}`, tone: direction === "up" ? "text-lime" : "text-white" },
                     { label: "Margin Used", value: "12%", tone: "text-cyan" },
                     {
                       label: "Daily P&L",
@@ -196,13 +233,20 @@ export default function TradingDesk() {
                   ].map((item) => (
                     <div key={item.label}>
                       <p className="text-[9px] uppercase tracking-wider text-slate-600">{item.label}</p>
-                      <p className={`mt-0.5 font-mono text-sm font-bold ${item.tone}`}>{item.value}</p>
+                      <motion.p
+                        key={item.value}
+                        initial={{ opacity: 0.7 }}
+                        animate={{ opacity: 1 }}
+                        className={`mt-0.5 font-mono text-sm font-bold ${item.tone}`}
+                      >
+                        {item.value}
+                      </motion.p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              <div className="rounded-2xl border border-white/8 bg-black/25 p-4">
+              <div className="rounded-2xl border border-slate-800/75 bg-black/25 p-4">
                 <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500">New Order</p>
                 <div className="mt-3 space-y-2.5">
                   {[
@@ -217,7 +261,7 @@ export default function TradingDesk() {
                         value={field.value}
                         onChange={(e) => field.set(e.target.value)}
                         placeholder={field.placeholder}
-                        className="mt-1 w-full rounded-lg border border-white/10 bg-white/[0.04] px-3 py-2.5 font-mono text-sm text-white outline-none focus:border-lime/30 focus:ring-1 focus:ring-lime/15"
+                        className="mt-1 w-full rounded-lg border border-slate-800/80 bg-slate-900/40 px-3 py-2.5 font-mono text-sm text-white outline-none focus:border-lime/30 focus:ring-1 focus:ring-lime/15"
                       />
                     </label>
                   ))}
@@ -273,7 +317,7 @@ export default function TradingDesk() {
               initial={{ scale: 0.88, y: 20 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.92, opacity: 0 }}
-              className="glass w-full max-w-sm rounded-2xl border border-white/15 p-6 text-center shadow-2xl"
+              className="glass w-full max-w-sm rounded-2xl border border-slate-700/80 p-6 text-center shadow-2xl"
             >
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-lime">Order Filled!</p>
               <p className="mt-2 font-display text-xl font-bold text-white">

@@ -163,6 +163,58 @@ export function fireHeroConfettiBomb() {
   }, duration - 400);
 }
 
+/** Rockets launch from bottom then explode — birthday hero bomb burst */
+export function fireRocketBurstConfetti() {
+  const colors = HERO_CONFETTI_COLORS;
+  const rockets = [
+    { x: 0.12, delay: 0 },
+    { x: 0.32, delay: 280 },
+    { x: 0.5, delay: 560 },
+    { x: 0.68, delay: 840 },
+    { x: 0.88, delay: 1120 },
+  ];
+
+  rockets.forEach(({ x, delay }) => {
+    window.setTimeout(() => {
+      confetti({
+        particleCount: 22,
+        angle: 90,
+        spread: 18,
+        startVelocity: 72,
+        origin: { x, y: 1.02 },
+        colors,
+        gravity: 1.15,
+        ticks: 70,
+        scalar: 0.85,
+        disableForReducedMotion: true,
+      });
+
+      window.setTimeout(() => {
+        const burstY = 0.18 + Math.random() * 0.12;
+        confetti({
+          particleCount: 130,
+          spread: 360,
+          startVelocity: 46,
+          origin: { x, y: burstY },
+          colors,
+          scalar: 1.15,
+          ticks: 280,
+          disableForReducedMotion: true,
+        });
+        confetti({
+          particleCount: 60,
+          spread: 100,
+          startVelocity: 32,
+          origin: { x, y: burstY },
+          colors: ["#ffffff", "#ffdf6b", "#5cff8d"],
+          scalar: 0.75,
+          disableForReducedMotion: true,
+        });
+      }, 420);
+    }, delay);
+  });
+}
+
 /** Light party burst — one-shot, won't freeze the page */
 export function firePartyModeBurst() {
   const colors = CONFETTI_COLORS;

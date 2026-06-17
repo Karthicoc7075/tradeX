@@ -2,7 +2,7 @@ import { QRCodeSVG } from "qrcode.react";
 
 const themes = {
   letter: { bg: "#f8f1df", fg: "#2f2820", border: "border-[#c9b896]/60" },
-  dark: { bg: "#0a1628", fg: "#eef8ff", border: "border-white/15" },
+  dark: { bg: "#0a1628", fg: "#eef8ff", border: "border-slate-700/70" },
 };
 
 export default function SecretQr({ value, size = 80, theme = "letter", className = "", label, title }) {
