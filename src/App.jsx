@@ -31,6 +31,7 @@ import TradingDesk from "./components/TradingDesk";
 import TradingTerminal from "./components/TradingTerminal";
 import TradingToasts from "./components/TradingToasts";
 import MusicProvider from "./context/MusicProvider";
+import { useFavicon } from "./hooks/useFavicon";
 import { usePerformanceMode } from "./hooks/usePerformanceMode";
 import { useScreenshotGuard } from "./hooks/useScreenshotGuard";
 import { useSiteMode } from "./hooks/useSiteMode";
@@ -49,6 +50,7 @@ function SiteContent() {
   } = useSiteMode();
   const { isBlocked: screenshotBlocked } = useScreenshotGuard(isBirthday);
   const { isLite } = usePerformanceMode(isBirthday);
+  useFavicon(isBirthday);
   const [bonusOpen, setBonusOpen] = useState(false);
   const [giftClaimed, setGiftClaimed] = useState(false);
   const progress = useScrollReveal();
