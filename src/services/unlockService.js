@@ -445,7 +445,7 @@ export async function claimAccessCode(enteredKey) {
         return {
           code: entry.code,
           used: true,
-          used_at: serverTimestamp(),
+          used_at: Timestamp.now(),
         };
       });
 
