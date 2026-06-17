@@ -564,6 +564,41 @@ a {
   animation: none;
 }
 
+.corner-ribbon {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 20;
+  width: 8.5rem;
+  height: 8.5rem;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.corner-ribbon__strip {
+  position: absolute;
+  top: 1.5rem;
+  right: -2.9rem;
+  width: 12.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transform: rotate(45deg);
+  transform-origin: center center;
+  background: linear-gradient(90deg, #fecdd3, #fda4af 45%, #fb7185);
+  padding: 0.5rem 0.25rem;
+  text-align: center;
+  line-height: 1;
+  text-indent: 0.14em;
+  font-size: 0.625rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #9f1239;
+  box-shadow: 0 4px 16px rgba(251, 113, 133, 0.28);
+  white-space: nowrap;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     scroll-behavior: auto !important;

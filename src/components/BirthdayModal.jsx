@@ -1,12 +1,12 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { FaCheck, FaEnvelopeOpen, FaTimes } from "react-icons/fa";
+import { FaCheck, FaGift, FaTimes } from "react-icons/fa";
 import { useSiteMode } from "../hooks/useSiteMode";
 import { LAYOUT_IDS, LAYOUT_SPRING, modalBackdrop } from "../utils/animations";
 import { PrimaryButton } from "./UI";
 
 export default function BirthdayModal({ open, onClose, grand = false }) {
   const { data } = useSiteMode();
-  const { modal, personalNote } = data.offerBundle;
+  const { modal } = data.offerBundle;
 
   return (
     <AnimatePresence>
@@ -53,7 +53,7 @@ export default function BirthdayModal({ open, onClose, grand = false }) {
                   transition={{ delay: 0.08 }}
                   className="mx-auto mb-5 grid h-16 w-16 place-items-center rounded-2xl border border-lime/25 bg-lime/10 text-lime shadow-glow"
                 >
-                  <FaEnvelopeOpen className="text-2xl" />
+                  <FaGift className="text-2xl" />
                 </motion.div>
 
                 <motion.span
@@ -72,7 +72,7 @@ export default function BirthdayModal({ open, onClose, grand = false }) {
                   transition={{ delay: 0.16 }}
                   className="mt-4 font-display text-2xl font-bold leading-snug text-white md:text-3xl"
                 >
-                  <span className="lime-gradient">{modal.title}</span>
+                  {modal.title}
                 </motion.h2>
 
                 {modal.subtitle && (
@@ -86,14 +86,19 @@ export default function BirthdayModal({ open, onClose, grand = false }) {
                   </motion.p>
                 )}
 
-                <motion.p
+                <motion.div
                   initial={{ opacity: 0, y: 6 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: 0.24 }}
-                  className="mx-auto mt-4 max-w-sm leading-7 text-slate-300"
+                  className="mx-auto mt-5 max-w-sm space-y-3 text-left"
                 >
-                  {modal.body}
-                </motion.p>
+                  {(modal.bodyLines ?? (modal.body ? [{ text: modal.body }] : [])).map((line, index) => (
+                    <p key={index} className="font-display text-base leading-relaxed text-slate-200 md:text-lg">
+                      {line.text}
+                      {line.emphasis ? <span className="gold-gradient font-bold">{line.emphasis}</span> : null}
+                    </p>
+                  ))}
+                </motion.div>
 
                 {modal.steps?.length > 0 && (
                   <motion.div
@@ -105,7 +110,7 @@ export default function BirthdayModal({ open, onClose, grand = false }) {
                     {modal.steps.map((step) => (
                       <div
                         key={step.label}
-                        className="flex items-center justify-between rounded-xl border border-white/8 bg-white/[0.03] px-4 py-2.5"
+                        className="flex items-center justify-between rounded-xl border border-slate-800/75 bg-slate-900/35 px-4 py-2.5"
                       >
                         <span className="text-xs text-slate-500">{step.label}</span>
                         <span className="font-mono text-xs font-bold text-lime">{step.value}</span>
@@ -119,29 +124,16 @@ export default function BirthdayModal({ open, onClose, grand = false }) {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ delay: 0.34 }}
-                    className="mx-auto mt-5 inline-block rounded-full border border-white/10 bg-white/[0.04] px-4 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wider text-cyan"
+                    className="mx-auto mt-5 inline-block rounded-full border border-slate-800/80 bg-slate-900/40 px-4 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wider text-cyan"
                   >
                     {modal.highlight}
                   </motion.p>
                 )}
-
-                {personalNote?.signOff && (
-                  <motion.p
-                    initial={{ opacity: 0, y: 6 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.38 }}
-                    className="mx-auto mt-5 max-w-sm font-hand text-2xl leading-relaxed text-lime/90"
-                  >
-                    {personalNote.signOff}
-                  </motion.p>
-                )}
-
-
               </>
             ) : (
               <>
                 <div className="mb-2 text-xs font-bold uppercase tracking-[0.25em] text-lime">Market Alert — Priority</div>
-                <h2 className="font-display text-2xl font-bold leading-snug text-white md:text-3xl">🎉 Happy Birthday Tharun!</h2>
+                <h2 className="font-display text-2xl font-bold leading-snug text-white md:text-3xl">🎉 Tharun&apos;s Big Day</h2>
                 <p className="mx-auto mt-4 max-w-sm leading-7 text-slate-300">
                   May your profits stay green and your vibes stay unlimited da machi.
                 </p>

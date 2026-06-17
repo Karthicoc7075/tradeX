@@ -41,8 +41,8 @@ export default function EntryGate({ onEnter, portalActive = false }) {
             transition={{ delay: 0.22, duration: 0.6 }}
             className="mt-4 font-display text-3xl font-bold leading-tight tracking-[-0.02em] text-white sm:text-4xl md:text-5xl lg:text-6xl"
           >
-            Birthday Edition for{" "}
-            <span className="gold-gradient">Tharun</span>
+            <span className="gold-gradient">Tharun&apos;s Big Day</span>
+            {" "}Edition
           </motion.h1>
 
           <motion.p

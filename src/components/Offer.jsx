@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { FaCheck, FaEnvelopeOpen, FaGift } from "react-icons/fa";
+import { FaCheck, FaGift } from "react-icons/fa";
 import { FaCakeCandles } from "react-icons/fa6";
 import { FaGraduationCap } from "react-icons/fa6";
 import { useEnrollModal } from "../hooks/useEnrollModal";
@@ -27,6 +27,7 @@ export default function Offer({ onClaim, bonusOpen = false, giftClaimed = false 
     ctaTag,
     finePrint,
     modal,
+    valueLabel,
   } = offerBundle;
   const { openEnrollModal } = useEnrollModal();
 
@@ -90,7 +91,9 @@ export default function Offer({ onClaim, bonusOpen = false, giftClaimed = false 
         <motion.div variants={sectionReveal} initial="hidden" whileInView="visible" viewport={VIEWPORT} className="relative overflow-hidden rounded-[2rem] border border-white/10 bg-gradient-to-b from-[#0c1628]/95 via-[#0a1220] to-[#0d1a14]/90 p-6 md:p-10">
           <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-gold/50 to-transparent" />
           {stamp && (
-            <div className="absolute -right-6 top-10 rotate-6 rounded-full border border-gold/25 bg-gold/10 px-4 py-2 text-[10px] font-bold uppercase tracking-wider text-gold">{stamp}</div>
+            <div className="corner-ribbon" aria-hidden>
+              <span className="corner-ribbon__strip">{stamp}</span>
+            </div>
           )}
           <div className="mb-10 text-center md:mb-12">
             <span className="inline-flex items-center gap-2 rounded-full border border-gold/25 bg-gold/10 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.2em] text-gold">
@@ -141,7 +144,7 @@ export default function Offer({ onClaim, bonusOpen = false, giftClaimed = false 
             )}
             <div className="flex flex-col">
               <div className="rounded-2xl border border-white/8 bg-white/[0.03] p-5">
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-500">Gift value</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-slate-500">{valueLabel ?? "Birthday package"}</p>
                 <p className="mt-2 font-display text-xl font-semibold text-slate-500 line-through decoration-rose-400/80 decoration-2">{originalPrice}</p>
                 <p className="lime-gradient mt-1 font-display text-5xl font-bold tracking-tight">{price}</p>
                 <p className="mt-2 text-sm font-medium text-slate-300">{priceTagline}</p>
@@ -149,8 +152,8 @@ export default function Offer({ onClaim, bonusOpen = false, giftClaimed = false 
               <div className="mt-5 flex items-center gap-3">
                 <span className="grid h-10 w-10 place-items-center rounded-xl bg-gold/15 text-gold"><FaGift /></span>
                 <div>
-                  <p className="text-sm font-bold text-white">Little extras inside</p>
-                  <p className="text-xs text-slate-500">Bonus perks with the note</p>
+                  <p className="text-sm font-bold text-white">Birthday bonus perks</p>
+                  <p className="text-xs text-slate-500">Gift onnum illa — treat matter da 😂</p>
                 </div>
               </div>
               <div className="mt-4 grid gap-2.5 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
@@ -207,7 +210,7 @@ export default function Offer({ onClaim, bonusOpen = false, giftClaimed = false 
                 <div className="absolute inset-0 bg-gradient-to-r from-gold/0 via-gold/10 to-gold/0 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
                 <div className="relative flex items-center gap-4">
                   <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gold/15 text-2xl text-gold transition-transform duration-300 group-hover:scale-110">
-                    <FaEnvelopeOpen />
+                    <FaGift />
                   </span>
                   <div className="text-left">
                     <p className="font-display text-lg font-bold text-white md:text-xl">{cta}</p>

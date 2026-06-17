@@ -96,10 +96,10 @@ export default function Footer() {
               transition={{ duration: 3.2, repeat: Infinity, ease: "easeInOut" }}
               className="inline-block"
             >
-              HAPPY BIRTHDAY
+              THARUN&apos;S
             </motion.span>
             <span className="footer-title-shimmer mt-2 block bg-gradient-to-r from-lime via-gold to-lime bg-clip-text text-transparent">
-              THARUN
+              BIG DAY
             </span>
           </motion.h2>
 

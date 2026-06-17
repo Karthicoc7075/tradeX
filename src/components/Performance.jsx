@@ -135,7 +135,9 @@ export default function Performance() {
                 isBirthday ? birthdayShell : "glass"
               } ${isExpanded ? `sm:col-span-2 ${ui.ring} ring-1` : "border-slate-800/75"}`}
             >
-              <div className={`pointer-events-none absolute right-0 top-0 h-24 w-24 rounded-full blur-2xl ${ui.glow} perf-blur`} />
+              {!isBirthday && (
+                <div className={`pointer-events-none absolute right-0 top-0 h-24 w-24 rounded-full blur-2xl ${ui.glow} perf-blur`} />
+              )}
 
               {isBirthday && metric.emoji ? (
                 <div className="flex items-start justify-between gap-3">

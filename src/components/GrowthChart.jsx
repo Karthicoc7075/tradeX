@@ -23,51 +23,11 @@ function milestoneAnchor(index, total) {
   return "middle";
 }
 
-function useNarrowScreen(maxWidth = 639) {
-  const [narrow, setNarrow] = useState(() =>
-    typeof window !== "undefined" ? window.matchMedia(`(max-width: ${maxWidth}px)`).matches : false,
-  );
-
-  useEffect(() => {
-    const mq = window.matchMedia(`(max-width: ${maxWidth}px)`);
-    const onChange = () => setNarrow(mq.matches);
-    onChange();
-    mq.addEventListener("change", onChange);
-    return () => mq.removeEventListener("change", onChange);
-  }, [maxWidth]);
-
-  return narrow;
-}
-
-function MobileMilestoneLegend({ milestones, isBirthday }) {
-  return (
-    <ul className="mt-3 grid grid-cols-2 gap-2 border-t border-slate-800/70 pt-3 sm:hidden">
-      {milestones.map((point, index) => {
-        const isLast = index === milestones.length - 1;
-        return (
-          <li
-            key={point.label}
-            className={`rounded-lg border border-slate-800/75 bg-slate-900/35 px-2.5 py-2 ${
-              isLast && milestones.length % 2 !== 0 ? "col-span-2" : ""
-            }`}
-          >
-            <p className={`font-mono text-[10px] font-bold ${isLast && isBirthday ? "text-gold" : "text-lime"}`}>
-              {point.label}
-            </p>
-            <p className="mt-0.5 text-[9px] leading-snug text-slate-500">{point.sub}</p>
-          </li>
-        );
-      })}
-    </ul>
-  );
-}
-
 export default function GrowthChart() {
   const { data, isBirthday } = useSiteMode();
   const { isLite } = usePerformanceMode(isBirthday);
   const { chartMilestones, copy } = data;
   const ref = useRef(null);
-  const isNarrow = useNarrowScreen();
   const visible = useInView(ref, { once: true, amount: 0.4 });
   const [celebrated, setCelebrated] = useState(false);
   const { line, fill } = useMemo(() => buildGrowthChartPaths(chartMilestones), [chartMilestones]);
@@ -125,16 +85,16 @@ export default function GrowthChart() {
                 </p>
               </div>
               <span className="shrink-0 rounded-lg bg-lime/10 px-2.5 py-1.5 text-[10px] font-bold text-lime sm:px-3 sm:py-2 sm:text-xs">
-                {isNarrow ? "BUY" : "STRONG BUY"}
+                STRONG BUY
               </span>
             </div>
           </div>
 
-          <div className="overflow-hidden px-0 pb-1 sm:overflow-visible sm:px-2 sm:pb-2 md:px-3">
-            <div className="w-full min-w-0">
+          <div className="-mx-1 overflow-x-auto px-1 pb-1 sm:mx-0 sm:overflow-visible sm:px-2 sm:pb-2 md:px-3">
+            <div className="w-full min-w-[560px]">
               <svg
                 viewBox={`${CHART_VIEWBOX.x} ${CHART_VIEWBOX.y} ${CHART_VIEWBOX.width} ${CHART_VIEWBOX.height}`}
-                className="block h-[190px] w-full sm:h-[240px] md:h-[300px] lg:h-[340px]"
+                className="block h-[240px] w-full md:h-[300px] lg:h-[340px]"
                 preserveAspectRatio="xMidYMid meet"
                 overflow="visible"
                 aria-hidden="true"
@@ -178,10 +138,10 @@ export default function GrowthChart() {
                   d={line}
                   fill="none"
                   stroke={CHART_GREEN}
-                  strokeWidth={isNarrow ? 3 : 4}
+                  strokeWidth="4"
                   strokeLinecap="round"
                   strokeLinejoin="round"
-                  filter={isLite || isNarrow ? undefined : "url(#glow)"}
+                  filter={isLite ? undefined : "url(#glow)"}
                   initial={isLite ? false : { pathLength: 0 }}
                   animate={visible ? (isLite ? { opacity: 1 } : { pathLength: 1 }) : {}}
                   transition={{ duration: isLite ? 0.4 : 2.8, ease: "easeOut" }}
@@ -211,51 +171,39 @@ export default function GrowthChart() {
                       <circle
                         cx={point.x}
                         cy={point.y}
-                        r={isLast ? (isNarrow ? 7 : 9) : isNarrow ? 5.5 : 7}
+                        r={isLast ? 9 : 7}
                         fill="#07101e"
                         stroke={isLast ? "#ffdf6b" : CHART_GREEN}
-                        strokeWidth={isLast ? (isNarrow ? 2.5 : 3.5) : isNarrow ? 2 : 3}
+                        strokeWidth={isLast ? 3.5 : 3}
                       />
                       {isLast && (
-                        <circle
-                          cx={point.x}
-                          cy={point.y}
-                          r={isNarrow ? 10 : 14}
-                          fill="#ffdf6b"
-                          fillOpacity="0.12"
-                        />
+                        <circle cx={point.x} cy={point.y} r={14} fill="#ffdf6b" fillOpacity="0.12" />
                       )}
-                      {!isNarrow && (
-                        <>
-                          <text
-                            x={point.x}
-                            y="218"
-                            textAnchor={anchor}
-                            fill={isLast ? "#ffdf6b" : isFirst ? "#5cff8d" : "#94a3b8"}
-                            fontSize={isLast ? 11 : 10}
-                            fontWeight="700"
-                          >
-                            {point.label}
-                          </text>
-                          <text
-                            x={point.x}
-                            y="232"
-                            textAnchor={anchor}
-                            fill={isLast ? "#cbd5e1" : "#64748b"}
-                            fontSize="8.5"
-                          >
-                            {point.sub}
-                          </text>
-                        </>
-                      )}
+                      <text
+                        x={point.x}
+                        y="218"
+                        textAnchor={anchor}
+                        fill={isLast ? "#ffdf6b" : isFirst ? "#5cff8d" : "#94a3b8"}
+                        fontSize={isLast ? 11 : 10}
+                        fontWeight="700"
+                      >
+                        {point.label}
+                      </text>
+                      <text
+                        x={point.x}
+                        y="232"
+                        textAnchor={anchor}
+                        fill={isLast ? "#cbd5e1" : "#64748b"}
+                        fontSize="8.5"
+                      >
+                        {point.sub}
+                      </text>
                     </motion.g>
                   );
                 })}
               </svg>
             </div>
           </div>
-
-          {isNarrow && <MobileMilestoneLegend milestones={chartMilestones} isBirthday={isBirthday} />}
 
           <div
             className={`mt-2 flex justify-between border-t pt-3 font-mono text-[9px] uppercase tracking-wider text-slate-600 sm:pt-4 sm:text-[10px] ${
